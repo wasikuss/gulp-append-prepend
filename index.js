@@ -17,7 +17,7 @@ function filesGetContents(filepaths){
     return filesContents;
 }
 
-function insert(texts, separator, type) {
+function insert(texts, options, type) {
     if(!texts){
         throw new PluginError(PLUGIN_NAME, 'Missing text or path !');
     }
@@ -30,16 +30,26 @@ function insert(texts, separator, type) {
         throw new PluginError(PLUGIN_NAME, 'Missing type !');
     }
 
-    if (!separator && separator !== '') {
-        separator = "\n";
+    if (options == null) {
+        options = {};
+    }
+    if (options.separator == null) {
+        options.separator = '\n';
+    }
+    if (options.trim == null) {
+        options.trim = true;
     }
 
     const buffers = [];
     for (i = 0; i < texts.length; i++) {
+        var text = texts[i];
+        if(options.trim) {
+            text = text.trim()
+        }
         if (type == "prepend") {
-            buffers.push(new Buffer(texts[i].trim() + separator));
+            buffers.push(new Buffer(text + options.separator));
         }else if(type == "append") {
-            buffers.push(new Buffer(separator + texts[i].trim()));
+            buffers.push(new Buffer(options.separator + text));
         }
     }
 
@@ -71,18 +81,18 @@ function insert(texts, separator, type) {
     return stream;
 }
 
-module.exports.appendFile = function(filepath, separator) {
-    return insert(filesGetContents(filepath), separator, "append");
+module.exports.appendFile = function(filepath, options) {
+    return insert(filesGetContents(filepath), options, "append");
 };
 
-module.exports.prependFile = function(filepath, separator) {
-    return insert(filesGetContents(filepath), separator, "prepend");
+module.exports.prependFile = function(filepath, options) {
+    return insert(filesGetContents(filepath), options, "prepend");
 };
 
-module.exports.appendText = function(text, separator) {
-    return insert(text, separator, "append");
+module.exports.appendText = function(text, options) {
+    return insert(text, options, "append");
 };
 
-module.exports.prependText = function(text, separator) {
-    return insert(text, separator, "prepend");
+module.exports.prependText = function(text, options) {
+    return insert(text, options, "prepend");
 };
